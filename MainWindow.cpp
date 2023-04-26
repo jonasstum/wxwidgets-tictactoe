@@ -2,7 +2,7 @@
 #include "Utils.h"
 
 MainWindow::MainWindow()
-	: wxFrame(NULL, wxID_ANY, "Tic-Tac-Toe")
+	: wxFrame(NULL, wxID_ANY, "WxTicTacToe")
 {
 	this->SetSizeHints(540, 540);
 	this->SetBackgroundColour(wxColor(*wxBLACK));
@@ -113,7 +113,7 @@ void MainWindow::OnAbout(wxCommandEvent& event)
 					
 					Have Fun!
 				
-					)", "About Tic-Tac-Toe", wxOK | wxICON_INFORMATION);
+					)", "About WxTicTacToe", wxOK | wxICON_INFORMATION);
 }
 
 void MainWindow::OnNewGame(wxCommandEvent& event)
