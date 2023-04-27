@@ -8,3 +8,4 @@ WxTicTacToe is a simple tic-tac-toe game built using the wxWidgets GUI Library. 
 
 Download: https://github.com/jonasstum/wxwidgets-tictactoe/releases/tag/v1.0.0
 
+Test
