@@ -121,16 +121,16 @@ void MainWindow::OnNewGame(wxCommandEvent& event)
 	switch (event.GetId())
 	{
 	case ID::SINGLE_PLAYER:
-		bIsAlone = true;
+		m_bIsAlone = true;
 		EnableGrid();
-		initBoard();
+		InitBoard();
 		SetStatusText("You are in the Single Player Mode. Mark a empty square to start the game!");
 		break;
 
 	case ID::VS_CPU:
-		bIsAlone = false;
+		m_bIsAlone = false;
 		EnableGrid();
-		initBoard();
+		InitBoard();
 		SetStatusText("You are in the Play VS CPU Mode. Mark a empty square to start the game!");
 		break;
 	}
@@ -150,8 +150,8 @@ void MainWindow::EnableGrid()
 			j->Enable();
 			j->SetLabelText("");
 
-			row = 1;
-			col = 1;
+			m_row = 1;
+			m_col = 1;
 		}
 	}
 }
@@ -168,13 +168,13 @@ void MainWindow::DisableGrid()
 	}
 }
 
-void MainWindow::initBoard()
+void MainWindow::InitBoard()
 {
-	clickCounter = 0;
-	player = 1;
-	winner = 0;
+	m_clickCounter = 0;
+	m_player = 1;
+	m_winner = 0;
 
-	for (auto& i : board)
+	for (auto& i : m_board)
 	{
 		for (auto& j : i)
 		{
@@ -185,33 +185,33 @@ void MainWindow::initBoard()
 
 void MainWindow::OnBtnEvent(const int& i, const int& j)
 {
-	if (bIsAlone)
+	if (m_bIsAlone)
 	{
-		switch (player)
+		switch (m_player)
 		{
 		case 1:
-			playerMovement(i, j, "X");
+			PlayerMovement(i, j, "X");
 			break;
 
 		case 2:
-			playerMovement(i, j, "O");
+			PlayerMovement(i, j, "O");
 			break;
 		}
 	}
 	else
 	{
-		if (player == 1)
+		if (m_player == 1)
 		{
-			playerMovement(i, j, "X");
-			CpuCheckMovs();
+			PlayerMovement(i, j, "X");
+			CpuPlays(GetXY(i, j));
 
-			while (!m_btn[row][col]->IsEnabled())
+			while (!m_btn[m_row][m_col]->IsEnabled())
 			{
-				row = Utils::randomNumber();
-				col = Utils::randomNumber();
+				m_row = Utils::RandomNumber();
+				m_col = Utils::RandomNumber();
 			}
 
-			playerMovement(row, col, "O");
+			PlayerMovement(m_row, m_col, "O");
 		}
 	}
 }
@@ -258,71 +258,255 @@ void MainWindow::OnBtnClick(wxCommandEvent& event)
 	}
 }
 
-void MainWindow::playerMovement(const int& row, const int& col, const std::string& symbol)
+void MainWindow::PlayerMovement(const int& row, const int& col, const std::string& symbol)
 {
-	board[row][col] = player;
+	m_board[row][col] = m_player;
 	m_btn[row][col]->Disable();
 	m_btn[row][col]->SetLabelText(symbol);
 
-	clickCounter++;
-	checkWinner();
+	m_clickCounter++;
+	CheckWinner();
 }
 
-void MainWindow::CpuCheckMovs()
+int MainWindow::GetXY(const int& row, const int& col)
 {
-	player = 2;
+	int res{ 0 };
 
-	if ((m_btn[0][1]->GetLabelText() == "X" && m_btn[0][2]->GetLabelText() == "X") ||
-		(m_btn[1][0]->GetLabelText() == "X" && m_btn[2][0]->GetLabelText() == "X") ||
-		(m_btn[1][1]->GetLabelText() == "X" && m_btn[2][2]->GetLabelText() == "X"))
+	switch (row)
 	{
-		row = 0;
-		col = 0;
+	case 0:
+		res = row + col + 10;
+		break;
+
+	case 1:
+		res = row + col + 100;
+		break;
+
+	case 2:
+		res = row + col + 1000;
+		break;
 	}
-	else if ((m_btn[1][1]->GetLabelText() == "X" && m_btn[2][1]->GetLabelText() == "X") ||
-		(m_btn[0][0]->GetLabelText() == "X" && m_btn[0][2]->GetLabelText() == "X"))
+
+	return res;
+}
+
+void MainWindow::CpuPlays(const int& pos)
+{
+	m_player = 2;
+
+	if ((m_btn[0][0]->GetLabelText() == "X" && m_btn[0][2]->GetLabelText() == "X") ||
+		(m_btn[0][2]->GetLabelText() == "X" && m_btn[0][0]->GetLabelText() == "X"))
 	{
-		row = 0;
-		col = 1;
-	}
-	else if ((m_btn[0][0]->GetLabelText() == "X" && m_btn[0][1]->GetLabelText() == "X") ||
-		(m_btn[1][1]->GetLabelText() == "X" && m_btn[2][0]->GetLabelText() == "X") ||
-		(m_btn[1][2]->GetLabelText() == "X" && m_btn[2][2]->GetLabelText() == "X"))
-	{
-		row = 0;
-		col = 2;
+		m_row = 0;
+		m_col = 1;
 	}
 	else if ((m_btn[0][0]->GetLabelText() == "X" && m_btn[2][0]->GetLabelText() == "X") ||
-		(m_btn[1][1]->GetLabelText() == "X" && m_btn[1][2]->GetLabelText() == "X"))
+		(m_btn[2][0]->GetLabelText() == "X" && m_btn[0][0]->GetLabelText() == "X"))
 	{
-		row = 1;
-		col = 0;
+		m_row = 1;
+		m_col = 0;
 	}
 	else if ((m_btn[0][2]->GetLabelText() == "X" && m_btn[2][2]->GetLabelText() == "X") ||
-		(m_btn[1][0]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X"))
+		(m_btn[2][2]->GetLabelText() == "X" && m_btn[0][2]->GetLabelText() == "X"))
 	{
-		row = 1;
-		col = 2;
+		m_row = 1;
+		m_col = 2;
 	}
-	else if ((m_btn[0][0]->GetLabelText() == "X" && m_btn[1][0]->GetLabelText() == "X") ||
-		(m_btn[0][2]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X") ||
-		(m_btn[2][1]->GetLabelText() == "X" && m_btn[2][2]->GetLabelText() == "X"))
+	else if ((m_btn[2][0]->GetLabelText() == "X" && m_btn[2][2]->GetLabelText() == "X") ||
+		(m_btn[2][2]->GetLabelText() == "X" && m_btn[2][0]->GetLabelText() == "X"))
 	{
-		row = 2;
-		col = 0;
+		m_row = 2;
+		m_col = 1;
 	}
-	else if ((m_btn[0][1]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X") ||
-		(m_btn[2][0]->GetLabelText() == "X" && m_btn[2][2]->GetLabelText() == "X"))
+
+	switch (pos)
 	{
-		row = 2;
-		col = 1;
-	}
-	else if ((m_btn[0][0]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X") ||
-		(m_btn[0][2]->GetLabelText() == "X" && m_btn[1][2]->GetLabelText() == "X") ||
-		(m_btn[2][0]->GetLabelText() == "X" && m_btn[2][1]->GetLabelText() == "X"))
-	{
-		row = 2;
-		col = 2;
+	case ID::X_0_0:
+		if (m_btn[0][0]->GetLabelText() == "X" && m_btn[0][1]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 2;
+		}
+		else if (m_btn[0][0]->GetLabelText() == "X" && m_btn[1][0]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 0;
+		}
+		else if (m_btn[0][0]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 2;
+		}
+		break;
+
+	case ID::X_0_1:
+		if (m_btn[0][1]->GetLabelText() == "X" && m_btn[0][0]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 2;
+		}
+		else if (m_btn[0][1]->GetLabelText() == "X" && m_btn[0][2]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 0;
+		}
+		else if (m_btn[0][1]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 1;
+		}
+		break;
+
+	case ID::X_0_2:
+		if (m_btn[0][2]->GetLabelText() == "X" && m_btn[0][1]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 0;
+		}
+		else if (m_btn[0][2]->GetLabelText() == "X" && m_btn[1][2]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 2;
+		}
+		else if (m_btn[0][2]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 0;
+		}
+		break;
+
+	case ID::X_1_0:
+		if (m_btn[1][0]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X")
+		{
+			m_row = 1;
+			m_col = 2;
+		}
+		else if (m_btn[1][0]->GetLabelText() == "X" && m_btn[0][0]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 0;
+		}
+		else if (m_btn[1][0]->GetLabelText() == "X" && m_btn[2][0]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 0;
+		}
+		break;
+
+	case ID::X_1_1:
+		if (m_btn[1][1]->GetLabelText() == "X" && m_btn[1][0]->GetLabelText() == "X")
+		{
+			m_row = 1;
+			m_col = 2;
+		}
+		else if (m_btn[1][1]->GetLabelText() == "X" && m_btn[1][2]->GetLabelText() == "X")
+		{
+			m_row = 1;
+			m_col = 0;
+		}
+		else if (m_btn[1][1]->GetLabelText() == "X" && m_btn[0][0]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 2;
+		}
+		else if (m_btn[1][1]->GetLabelText() == "X" && m_btn[2][2]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 0;
+		}
+		else if (m_btn[1][1]->GetLabelText() == "X" && m_btn[0][2]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 0;
+		}
+		else if (m_btn[1][1]->GetLabelText() == "X" && m_btn[2][0]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 2;
+		}
+		else if (m_btn[1][1]->GetLabelText() == "X" && m_btn[0][1]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 1;
+		}
+		else if (m_btn[1][1]->GetLabelText() == "X" && m_btn[2][1]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 1;
+		}
+		break;
+
+	case ID::X_1_2:
+		if (m_btn[1][2]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X")
+		{
+			m_row = 1;
+			m_col = 0;
+		}
+		else if (m_btn[1][2]->GetLabelText() == "X" && m_btn[0][2]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 2;
+		}
+		else if (m_btn[1][2]->GetLabelText() == "X" && m_btn[2][2]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 2;
+		}
+		break;
+
+	case ID::X_2_0:
+		if (m_btn[2][0]->GetLabelText() == "X" && m_btn[1][0]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 0;
+		}
+		else if (m_btn[2][0]->GetLabelText() == "X" && m_btn[2][1]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 2;
+		}
+		else if (m_btn[2][0]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 2;
+		}
+		break;
+
+	case ID::X_2_1:
+		if (m_btn[2][1]->GetLabelText() == "X" && m_btn[2][0]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 2;
+		}
+		else if (m_btn[2][1]->GetLabelText() == "X" && m_btn[2][2]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 0;
+		}
+		else if (m_btn[2][1]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 1;
+		}
+		break;
+
+	case ID::X_2_2:
+		if (m_btn[2][2]->GetLabelText() == "X" && m_btn[2][1]->GetLabelText() == "X")
+		{
+			m_row = 2;
+			m_col = 0;
+		}
+		else if (m_btn[2][2]->GetLabelText() == "X" && m_btn[1][2]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 2;
+		}
+		else if (m_btn[2][2]->GetLabelText() == "X" && m_btn[1][1]->GetLabelText() == "X")
+		{
+			m_row = 0;
+			m_col = 0;
+		}
+		break;
 	}
 }
 
@@ -336,13 +520,13 @@ void MainWindow::OnBtnLeaveWindow(wxCommandEvent& event)
 		{
 			if (j->IsEnabled())
 			{
-				if (player == 1)
+				if (m_player == 1)
 				{
 					m_statusBarMsg = "Playing Now: X - Player 1";
 				}
 				else
 				{
-					if (player == 2)
+					if (m_player == 2)
 					{
 						m_statusBarMsg = "Playing Now: O - Player 2";
 					}
@@ -354,13 +538,13 @@ void MainWindow::OnBtnLeaveWindow(wxCommandEvent& event)
 	}
 }
 
-int MainWindow::checkBoard()
+int MainWindow::CheckBoard()
 {
 	int playerOneMoves;
 	int playerTwoMoves;
 
 	// Horizontal
-	for (auto& i : board)
+	for (auto& i : m_board)
 	{
 		playerOneMoves = 0;
 		playerTwoMoves = 0;
@@ -395,11 +579,11 @@ int MainWindow::checkBoard()
 
 		for (unsigned int i = 0; i < 3; ++i)
 		{
-			if (board[i][j] == 1)
+			if (m_board[i][j] == 1)
 			{
 				playerOneMoves++;
 			}
-			else if (board[i][j] == 2)
+			else if (m_board[i][j] == 2)
 			{
 				playerTwoMoves++;
 			}
@@ -416,21 +600,21 @@ int MainWindow::checkBoard()
 	}
 
 	// Main diagonal
-	if (board[0][0] == 1 && board[1][1] == 1 && board[2][2] == 1)
+	if (m_board[0][0] == 1 && m_board[1][1] == 1 && m_board[2][2] == 1)
 	{
 		return 1;
 	}
-	else if (board[0][0] == 2 && board[1][1] == 2 && board[2][2] == 2)
+	else if (m_board[0][0] == 2 && m_board[1][1] == 2 && m_board[2][2] == 2)
 	{
 		return 2;
 	}
 
 	// Antidiagonal
-	if (board[0][2] == 1 && board[1][1] == 1 && board[2][0] == 1)
+	if (m_board[0][2] == 1 && m_board[1][1] == 1 && m_board[2][0] == 1)
 	{
 		return 1;
 	}
-	else if (board[0][2] == 2 && board[1][1] == 2 && board[2][0] == 2)
+	else if (m_board[0][2] == 2 && m_board[1][1] == 2 && m_board[2][0] == 2)
 	{
 		return 2;
 	}
@@ -439,24 +623,24 @@ int MainWindow::checkBoard()
 	return 0;
 }
 
-void MainWindow::checkWinner()
+void MainWindow::CheckWinner()
 {
-	winner = checkBoard();
+	m_winner = CheckBoard();
 
-	if (winner != 0 || clickCounter >= 9)
+	if (m_winner != 0 || m_clickCounter >= 9)
 	{
 		EndGame();
 	}
 	else
 	{
-		switch (player)
+		switch (m_player)
 		{
 		case 1:
-			player = 2;
+			m_player = 2;
 			break;
 
 		case 2:
-			player = 1;
+			m_player = 1;
 			break;
 		}
 	}
@@ -466,7 +650,7 @@ void MainWindow::EndGame()
 {
 	std::string message{ "" };
 
-	switch (winner)
+	switch (m_winner)
 	{
 	case 0:
 		message = "Tied Game!";
@@ -485,7 +669,7 @@ void MainWindow::EndGame()
 
 	if (wxMessageBox(message, "Game Over!", wxYES_NO | wxICON_INFORMATION) == wxYES)
 	{
-		initBoard();
+		InitBoard();
 		EnableGrid();
 	}
 	else
