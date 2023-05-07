@@ -2,7 +2,7 @@
 
 #include <random>
 
-int Utils::randomNumber()
+int Utils::RandomNumber()
 {
 	int number{ 0 };
 	std::random_device rd;

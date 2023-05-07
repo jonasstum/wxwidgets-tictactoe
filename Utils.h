@@ -2,5 +2,5 @@
 
 namespace Utils
 {
-	int randomNumber();
+	int RandomNumber();
 }
