@@ -46,12 +46,12 @@ private:
 	wxMenu* m_subMenuGame;
 	wxMenuBar* m_mainMenuBar;
 	wxStatusBar* m_statusBar;
-	bool m_bIsAlone{ false };
+	bool m_bIsAlone;
 	int m_board[3][3];
-	int m_clickCounter{ 0 };
-	int m_row{ 0 };
-	int m_col{ 0 };
-	int m_player{ 0 };
-	int m_winner{ 0 };
+	int m_clickCounter;
+	int m_row;
+	int m_col;
+	int m_player;
+	int m_winner;
 };
 
